@@ -48,6 +48,8 @@ func _on_area_entered(area: Area2D) -> void:
 	if area.is_in_group("enemy_bullets"):
 		area.queue_free()
 		_take_hit()
+	elif area.is_in_group("bosses"):
+		_take_hit()
 	elif area.is_in_group("enemies"):
 		area.queue_free()
 		_take_hit()

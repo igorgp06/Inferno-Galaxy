@@ -13,11 +13,15 @@ var score_label: Label
 var lives_label: Label
 var wave_label: Label
 var boost_label: Label
+var time_label: Label
 var music_slider: HSlider
 var effects_slider: HSlider
 var volume_label_music: Label
 var volume_label_effects: Label
 var credits_label: Label
+var announcement_label: Label
+var boss_label: Label
+var boss_bar: ProgressBar
 var click_player: AudioStreamPlayer
 var mode := "menu"
 
@@ -25,8 +29,23 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	score_label = _make_label("PONTOS 00000", 19, Color("e8faff"), Vector2(13, 10), Vector2(245, 30))
 	lives_label = _make_label("VIDAS 3", 19, Color("ffb4c4"), Vector2(345, 10), Vector2(125, 30))
-	wave_label = _make_label("ONDA 1", 17, Color("ffe4aa"), Vector2(13, 40), Vector2(180, 30))
+	wave_label = _make_label("ONDA 1 / 3", 17, Color("ffe4aa"), Vector2(13, 40), Vector2(210, 30))
+	time_label = _make_label("", 15, Color("aacddd"), Vector2(280, 40), Vector2(185, 30))
 	boost_label = _make_label("", 16, Color("77f1e6"), Vector2(13, 73), Vector2(445, 28))
+
+	boss_label = _make_label("CHEFE", 15, Color("ffc1e0"), Vector2(13, 101), Vector2(95, 27))
+	boss_bar = ProgressBar.new()
+	boss_bar.position = Vector2(115, 107)
+	boss_bar.size = Vector2(346, 18)
+	boss_bar.show_percentage = false
+	add_child(boss_bar)
+	hide_boss_health()
+
+	announcement_label = _make_label("", 23, Color("fff2c1"), Vector2(10, 178), Vector2(460, 68))
+	announcement_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.95))
+	announcement_label.add_theme_constant_override("shadow_offset_x", 2)
+	announcement_label.add_theme_constant_override("shadow_offset_y", 2)
+	announcement_label.visible = false
 
 	overlay = ColorRect.new()
 	overlay.color = Color(0.017, 0.025, 0.065, 0.96)
@@ -35,7 +54,7 @@ func _ready() -> void:
 	add_child(overlay)
 
 	title_label = _make_label("INFERNO GALAXY", 35, Color("66ecff"), Vector2(18, 153), Vector2(444, 56), overlay)
-	message_label = _make_label("PROTOTIPO 0.2.2", 20, Color("eef4ff"), Vector2(30, 239), Vector2(420, 78), overlay)
+	message_label = _make_label("ALPHA 0.3.0", 20, Color("eef4ff"), Vector2(30, 239), Vector2(420, 78), overlay)
 	controls_label = _make_label("WASD / SETAS - MOVER\nESPACO / J - ATIRAR\nESC / P - PAUSAR", 18, Color("a9bfdc"), Vector2(35, 345), Vector2(410, 108), overlay)
 
 	main_button = Button.new()
@@ -89,7 +108,7 @@ func _make_label(text_value: String, font_size: int, label_color: Color, pos: Ve
 func update_stats(score: int, lives: int, wave: int) -> void:
 	score_label.text = "PONTOS %05d" % score
 	lives_label.text = "VIDAS %d" % lives
-	wave_label.text = "ONDA %d" % wave
+	wave_label.text = "CHEFE - FASE 1" if boss_bar.visible else "ONDA %d / 3" % wave
 
 func update_boost(rapid: float, double_shot: float) -> void:
 	if rapid > 0.0 and double_shot > 0.0:
@@ -100,6 +119,36 @@ func update_boost(rapid: float, double_shot: float) -> void:
 		boost_label.text = "BOOST: TIRO DUPLO  %.0fs" % double_shot
 	else:
 		boost_label.text = ""
+
+func update_time_info(text_value: String) -> void:
+	time_label.text = text_value
+
+func show_boss_health(current: int, maximum: int) -> void:
+	boss_label.visible = true
+	boss_bar.visible = true
+	boss_bar.max_value = maximum
+	boss_bar.value = current
+	wave_label.text = "CHEFE - FASE 1"
+
+func hide_boss_health() -> void:
+	boss_label.visible = false
+	boss_bar.visible = false
+
+func show_announcement(text_value: String) -> void:
+	announcement_label.text = text_value
+	announcement_label.visible = true
+
+func hide_announcement() -> void:
+	announcement_label.visible = false
+
+func show_victory(final_score: int, remaining_lives: int) -> void:
+	mode = "victory"
+	overlay.visible = true
+	title_label.text = "VITORIA!"
+	message_label.text = "Chefe derrotado!\nPontos: %d  |  Vidas: %d" % [final_score, remaining_lives]
+	controls_label.visible = false
+	main_button.text = "JOGAR DE NOVO"
+	_show_volume_controls(true)
 
 func hide_overlay() -> void:
 	overlay.visible = false
@@ -114,7 +163,7 @@ func show_menu() -> void:
 	mode = "menu"
 	overlay.visible = true
 	title_label.text = "INFERNO GALAXY"
-	message_label.text = "PROTOTIPO JOGAVEL 0.2.2\nDefenda a galaxia!"
+	message_label.text = "ALPHA 0.3.0 - FASE 1\n3 ondas + batalha final!"
 	controls_label.visible = true
 	main_button.text = "JOGAR"
 	_show_volume_controls(true)
