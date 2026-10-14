@@ -17,6 +17,7 @@ var music_slider: HSlider
 var effects_slider: HSlider
 var volume_label_music: Label
 var volume_label_effects: Label
+var credits_label: Label
 var click_player: AudioStreamPlayer
 var mode := "menu"
 
@@ -34,7 +35,7 @@ func _ready() -> void:
 	add_child(overlay)
 
 	title_label = _make_label("INFERNO GALAXY", 35, Color("66ecff"), Vector2(18, 153), Vector2(444, 56), overlay)
-	message_label = _make_label("PROTOTIPO 0.2.1", 20, Color("eef4ff"), Vector2(30, 239), Vector2(420, 78), overlay)
+	message_label = _make_label("PROTOTIPO 0.2.2", 20, Color("eef4ff"), Vector2(30, 239), Vector2(420, 78), overlay)
 	controls_label = _make_label("WASD / SETAS - MOVER\nESPACO / J - ATIRAR\nESC / P - PAUSAR", 18, Color("a9bfdc"), Vector2(35, 345), Vector2(410, 108), overlay)
 
 	main_button = Button.new()
@@ -51,6 +52,8 @@ func _ready() -> void:
 	effects_slider = _make_slider(Vector2(155, 624), 0.75)
 	music_slider.value_changed.connect(_on_volume_slider_changed)
 	effects_slider.value_changed.connect(_on_volume_slider_changed)
+
+	credits_label = _make_label("MUSICAS: DAVID KBD  |  CC BY 4.0", 13, Color("8ea9c6"), Vector2(18, 660), Vector2(444, 30), overlay)
 
 	click_player = AudioStreamPlayer.new()
 	click_player.stream = preload("res://assets/audio/click.wav")
@@ -111,7 +114,7 @@ func show_menu() -> void:
 	mode = "menu"
 	overlay.visible = true
 	title_label.text = "INFERNO GALAXY"
-	message_label.text = "PROTOTIPO JOGAVEL 0.2.1\nDefenda a galaxia!"
+	message_label.text = "PROTOTIPO JOGAVEL 0.2.2\nDefenda a galaxia!"
 	controls_label.visible = true
 	main_button.text = "JOGAR"
 	_show_volume_controls(true)

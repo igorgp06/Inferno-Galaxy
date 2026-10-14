@@ -8,6 +8,32 @@ const SOUND_FILES := {
 	"boost": preload("res://assets/audio/boost.wav"),
 	"hit_enemy": preload("res://assets/audio/hit_enemy.wav")
 }
+
+# Playlist: todas as 9 faixas do pacote CC BY 4.0 de David KBD.
+const MUSIC_TRACKS := [
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 01 - Interstellar.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 02 - Plasma Storm.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 03 - Temple of Madness.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 04 - Horsehead Nebula.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 05 - Forgotten Station.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 06 - Hope on the Horizon.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 07 - Electric Firework.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 08 - Synth Kobra.ogg"),
+	preload("res://assets/audio/interstellar_pack/DavidKBD - InterstellarPack - 09 - Spiral of Plasma.ogg"),
+]
+
+const MUSIC_TITLES := [
+	"Interstellar",
+	"Plasma Storm",
+	"Temple of Madness",
+	"Horsehead Nebula",
+	"Forgotten Station",
+	"Hope on the Horizon",
+	"Electric Firework",
+	"Synth Kobra",
+	"Spiral of Plasma",
+]
+
 const SOUND_LEVELS := {
 	"laser": -8.0,
 	"enemy_laser": -18.0,
@@ -20,6 +46,8 @@ const SOUND_LEVELS := {
 var players: Dictionary = {}
 var next_player: Dictionary = {}
 var music_player: AudioStreamPlayer
+var shuffled_track_indices: Array[int] = []
+var previous_track_index := -1
 var music_enabled := false
 var music_volume := 0.4
 var effects_volume := 0.75
@@ -29,7 +57,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE
 	music_player = AudioStreamPlayer.new()
 	music_player.name = "MusicPlayer"
-	music_player.stream = preload("res://assets/audio/DavidKBD - InterstellarPack - 01 - Interstellar.ogg")
+	for track in MUSIC_TRACKS:
+		if track is AudioStreamOggVorbis:
+			track.loop = false
 	music_player.finished.connect(_on_music_finished)
 	add_child(music_player)
 	for sound_name in SOUND_FILES:
@@ -75,7 +105,9 @@ func play_sound(sound_name: String) -> void:
 func start_music() -> void:
 	music_enabled = true
 	music_player.stop()
-	music_player.play()
+	shuffled_track_indices.clear()
+	previous_track_index = -1
+	_play_next_track()
 
 func stop_music() -> void:
 	music_enabled = false
@@ -83,4 +115,25 @@ func stop_music() -> void:
 
 func _on_music_finished() -> void:
 	if music_enabled:
-		music_player.play()
+		_play_next_track()
+
+func _play_next_track() -> void:
+	if not music_enabled or MUSIC_TRACKS.is_empty():
+		return
+	if shuffled_track_indices.is_empty():
+		_shuffle_playlist()
+	var next_index: int = shuffled_track_indices.pop_back()
+	previous_track_index = next_index
+	music_player.stream = MUSIC_TRACKS[next_index]
+	music_player.play()
+	print("[Inferno Galaxy] Tocando: ", MUSIC_TITLES[next_index])
+
+func _shuffle_playlist() -> void:
+	shuffled_track_indices.clear()
+	for i in range(MUSIC_TRACKS.size()):
+		shuffled_track_indices.append(i)
+	shuffled_track_indices.shuffle()
+	if shuffled_track_indices.size() > 1 and shuffled_track_indices.back() == previous_track_index:
+		var first: int = shuffled_track_indices[0]
+		shuffled_track_indices[0] = shuffled_track_indices[shuffled_track_indices.size() - 1]
+		shuffled_track_indices[shuffled_track_indices.size() - 1] = first
