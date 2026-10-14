@@ -2,6 +2,7 @@ extends Area2D
 
 signal shoot_requested(origin: Vector2, double_shot: bool)
 signal damaged
+signal boost_collected(kind: int, place: Vector2)
 
 @export var speed: float = 305.0
 var rapid_remaining := 0.0
@@ -40,6 +41,7 @@ func _on_area_entered(area: Area2D) -> void:
 			rapid_remaining = 8.0
 		else:
 			double_remaining = 8.0
+		boost_collected.emit(int(area.get("boost_kind")), area.global_position)
 		area.queue_free()
 		return
 

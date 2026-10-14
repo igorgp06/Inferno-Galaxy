@@ -1,16 +1,23 @@
-[gd_scene format=3 uid="uid://cp506thet7ju4"]
+[gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" uid="uid://dmewahj3pfra8" path="res://scripts/main.gd" id="1_main"]
-[ext_resource type="Script" uid="uid://b12kcutblgf8v" path="res://scripts/starfield.gd" id="2_stars"]
-[ext_resource type="Script" uid="uid://bstxy4nvn2err" path="res://scripts/ui.gd" id="3_ui"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/starfield.gd" id="2_stars"]
+[ext_resource type="Script" path="res://scripts/ui.gd" id="3_ui"]
+[ext_resource type="Script" path="res://scripts/audio_manager.gd" id="4_audio"]
 
-[node name="Main" type="Node2D" unique_id=34089814]
+[node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 
-[node name="Starfield" type="Node2D" parent="." unique_id=625509882]
+[node name="Starfield" type="Node2D" parent="."]
+process_mode = 1
 script = ExtResource("2_stars")
 
-[node name="Entities" type="Node2D" parent="." unique_id=28151921]
+[node name="Entities" type="Node2D" parent="."]
+process_mode = 1
 
-[node name="UI" type="CanvasLayer" parent="." unique_id=770416074]
+[node name="Audio" type="Node" parent="."]
+process_mode = 1
+script = ExtResource("4_audio")
+
+[node name="UI" type="CanvasLayer" parent="."]
 script = ExtResource("3_ui")

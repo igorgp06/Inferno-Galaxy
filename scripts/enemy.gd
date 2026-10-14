@@ -2,6 +2,7 @@ extends Area2D
 
 signal destroyed(points: int, place: Vector2)
 signal shoot_requested(origin: Vector2)
+signal hit(place: Vector2)
 
 var enemy_kind := 0
 var wave := 1
@@ -59,6 +60,7 @@ func take_damage(amount: int = 1) -> void:
 		destroyed.emit(points, global_position)
 		queue_free()
 	else:
+		hit.emit(global_position)
 		queue_redraw()
 
 func _draw() -> void:

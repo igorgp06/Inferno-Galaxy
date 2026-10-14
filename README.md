@@ -7,4 +7,3 @@ Este e o primeiro projeto jogável do jogo `Inferno Galaxy`. Disciplina Desenvol
 - **W/A/S/D** ou **setas**: movimentar a nave
 - **Espaco** ou **J**: atirar
 - **Esc** ou **P**: pausar/despausar
-- 
