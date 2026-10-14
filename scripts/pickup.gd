@@ -1,9 +1,13 @@
 extends Area2D
 
+const RAPID_TEXTURE = preload("res://assets/sprites/boost_rapid.png")
+const DOUBLE_TEXTURE = preload("res://assets/sprites/boost_double.png")
+
 var boost_kind := 0
 var elapsed := 0.0
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_to_group("pickups")
 
 func _physics_process(delta: float) -> void:
@@ -14,10 +18,7 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	var c := Color("6cfaed") if boost_kind == 0 else Color("ffdc71")
-	var size_offset := sin(elapsed * 5.0) * 1.5
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(0, -15 - size_offset), Vector2(15 + size_offset, 0),
-		Vector2(0, 15 + size_offset), Vector2(-15 - size_offset, 0)
-	]), c)
-	draw_circle(Vector2.ZERO, 5.0, Color("16213d"))
+	var texture = RAPID_TEXTURE if boost_kind == 0 else DOUBLE_TEXTURE
+	var pulse := 1.0 + sin(elapsed * 5.0) * 0.07
+	var width := 42.0 * pulse
+	draw_texture_rect(texture, Rect2(-width * 0.5, -width * 0.5, width, width), false)

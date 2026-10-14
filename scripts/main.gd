@@ -7,7 +7,7 @@ const BULLET_SCENE = preload("res://scenes/bullet.tscn")
 const PICKUP_SCENE = preload("res://scenes/pickup.tscn")
 const EFFECT_SCRIPT = preload("res://scripts/effect.gd")
 
-const WAVE_DURATIONS := [18.0, 22.0, 24.0]
+const WAVE_DURATIONS := [25.0, 30.0, 35.0]
 const WAVE_SPAWN_INTERVALS := [1.35, 1.10, 0.95]
 const TOTAL_WAVES := 3
 
@@ -32,7 +32,6 @@ var paused := false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	# Apenas Main e UI continuam processando durante a pausa.
 	entities.process_mode = Node.PROCESS_MODE_PAUSABLE
 	starfield.process_mode = Node.PROCESS_MODE_PAUSABLE
 	get_tree().paused = false
@@ -65,6 +64,7 @@ func start_game() -> void:
 	player.boost_collected.connect(_on_boost_collected)
 	ui.hide_overlay()
 	ui.hide_boss_health()
+	ui.hide_boss_warning()
 	ui.update_boost(0.0, 0.0)
 	_begin_wave(1)
 	audio.start_music()
@@ -115,6 +115,8 @@ func _complete_wave() -> void:
 	if wave < TOTAL_WAVES:
 		_show_announcement("ONDA %d CONCLUIDA" % wave, 2.2)
 	else:
+		ui.show_boss_warning()
+		audio.play_boss_music("sector_guardian")
 		_show_announcement("ALERTA: CHEFE A CAMINHO", 2.6)
 
 func _clear_hostiles() -> void:
@@ -141,6 +143,7 @@ func _spawn_enemy() -> void:
 
 func _begin_boss_fight() -> void:
 	transition_remaining = -1.0
+	ui.hide_boss_warning()
 	_clear_hostiles()
 	boss_fight = true
 	boss = BOSS_SCENE.instantiate()
@@ -250,6 +253,7 @@ func _finish_game(victory: bool) -> void:
 	paused = false
 	audio.stop_music()
 	ui.hide_boss_health()
+	ui.hide_boss_warning()
 	ui.hide_announcement()
 	if victory:
 		ui.show_victory(score, lives)

@@ -22,6 +22,8 @@ var credits_label: Label
 var announcement_label: Label
 var boss_label: Label
 var boss_bar: ProgressBar
+var boss_warning: ColorRect
+var boss_warning_elapsed := 0.0
 var click_player: AudioStreamPlayer
 var mode := "menu"
 
@@ -54,7 +56,7 @@ func _ready() -> void:
 	add_child(overlay)
 
 	title_label = _make_label("INFERNO GALAXY", 35, Color("66ecff"), Vector2(18, 153), Vector2(444, 56), overlay)
-	message_label = _make_label("ALPHA 0.3.0", 20, Color("eef4ff"), Vector2(30, 239), Vector2(420, 78), overlay)
+	message_label = _make_label("ALPHA 0.3.1", 20, Color("eef4ff"), Vector2(30, 239), Vector2(420, 78), overlay)
 	controls_label = _make_label("WASD / SETAS - MOVER\nESPACO / J - ATIRAR\nESC / P - PAUSAR", 18, Color("a9bfdc"), Vector2(35, 345), Vector2(410, 108), overlay)
 
 	main_button = Button.new()
@@ -74,10 +76,34 @@ func _ready() -> void:
 
 	credits_label = _make_label("MUSICAS: DAVID KBD  |  CC BY 4.0", 13, Color("8ea9c6"), Vector2(18, 660), Vector2(444, 30), overlay)
 
+	boss_warning = ColorRect.new()
+	boss_warning.position = Vector2(0, 274)
+	boss_warning.size = Vector2(480, 132)
+	boss_warning.color = Color("400919")
+	boss_warning.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	boss_warning.z_index = -1 # fica atras do menu de pausa, quando aberto
+	add_child(boss_warning)
+	_make_label("ALERTA VERMELHO", 27, Color("ff7887"), Vector2(0, 12), Vector2(480, 48), boss_warning)
+	_make_label("UM GUARDIAO ESTA SE APROXIMANDO", 17, Color("ffe3ec"), Vector2(0, 67), Vector2(480, 40), boss_warning)
+	boss_warning.hide()
+
 	click_player = AudioStreamPlayer.new()
 	click_player.stream = preload("res://assets/audio/click.wav")
 	add_child(click_player)
 	show_menu()
+
+func _process(delta: float) -> void:
+	if boss_warning.visible and not get_tree().paused:
+		boss_warning_elapsed += delta
+		boss_warning.modulate.a = 0.74 + absf(sin(boss_warning_elapsed * 8.0)) * 0.26
+
+func show_boss_warning() -> void:
+	boss_warning_elapsed = 0.0
+	boss_warning.modulate.a = 1.0
+	boss_warning.show()
+
+func hide_boss_warning() -> void:
+	boss_warning.hide()
 
 func _make_slider(pos: Vector2, default_value: float) -> HSlider:
 	var slider := HSlider.new()
@@ -163,7 +189,7 @@ func show_menu() -> void:
 	mode = "menu"
 	overlay.visible = true
 	title_label.text = "INFERNO GALAXY"
-	message_label.text = "ALPHA 0.3.0 - FASE 1\n3 ondas + batalha final!"
+	message_label.text = "ALPHA 0.3.1 - FASE 1\n3 ondas + batalha final!"
 	controls_label.visible = true
 	main_button.text = "JOGAR"
 	_show_volume_controls(true)

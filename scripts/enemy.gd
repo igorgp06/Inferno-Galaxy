@@ -1,5 +1,11 @@
 extends Area2D
 
+const ENEMY_TEXTURES := [
+	preload("res://assets/sprites/enemy_0.png"),
+	preload("res://assets/sprites/enemy_1.png"),
+	preload("res://assets/sprites/enemy_2.png")
+]
+
 signal destroyed(points: int, place: Vector2)
 signal shoot_requested(origin: Vector2)
 signal hit(place: Vector2)
@@ -31,6 +37,7 @@ func configure(kind: int, current_wave: int) -> void:
 			points = 300
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	add_to_group("enemies")
 	base_x = position.x
 	shoot_timer = randf_range(1.2, 2.7)
@@ -64,16 +71,4 @@ func take_damage(amount: int = 1) -> void:
 		queue_redraw()
 
 func _draw() -> void:
-	var main_color := Color("ff5e76")
-	if enemy_kind == 1:
-		main_color = Color("ffba54")
-	elif enemy_kind == 2:
-		main_color = Color("b58cff")
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(-21, -13), Vector2(-8, -4), Vector2(0, -12),
-		Vector2(8, -4), Vector2(21, -13), Vector2(16, 17),
-		Vector2(0, 9), Vector2(-16, 17)
-	]), main_color)
-	draw_circle(Vector2(0, 2), 7.0, Color("1a1638"))
-	if enemy_kind == 2:
-		draw_rect(Rect2(-14, -16, 28, 5), Color("ece0ff"))
+	draw_texture_rect(ENEMY_TEXTURES[enemy_kind], Rect2(-26, -26, 52, 52), false)

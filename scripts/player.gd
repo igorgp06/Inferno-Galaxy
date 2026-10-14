@@ -1,5 +1,9 @@
 extends Area2D
 
+const SHIP_IDLE = preload("res://assets/sprites/player_idle.png")
+const SHIP_THRUST = preload("res://assets/sprites/player_thrust.png")
+var animation_elapsed := 0.0
+
 signal shoot_requested(origin: Vector2, double_shot: bool)
 signal damaged
 signal boost_collected(kind: int, place: Vector2)
@@ -11,10 +15,11 @@ var invincible_remaining := 0.0
 var shoot_timer := 0.0
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	area_entered.connect(_on_area_entered)
 
 func _physics_process(delta: float) -> void:
-	# Setas: acoes padrao da Godot. WASD: verificacao adicional.
+	animation_elapsed += delta
 	var direction := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	var wasd := Vector2(
 		float(int(Input.is_key_pressed(KEY_D)) - int(Input.is_key_pressed(KEY_A))),
@@ -61,15 +66,7 @@ func _take_hit() -> void:
 	damaged.emit()
 
 func _draw() -> void:
-	# Pisca brevemente quando perde uma vida.
 	if invincible_remaining > 0.0 and int(invincible_remaining * 12.0) % 2 == 0:
 		return
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(0, -26), Vector2(21, 19), Vector2(5, 12),
-		Vector2(0, 18), Vector2(-5, 12), Vector2(-21, 19)
-	]), Color("32e1e8"))
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(0, -17), Vector2(8, 11), Vector2(-8, 11)
-	]), Color("d7f9ff"))
-	draw_rect(Rect2(-15, 18, 8, 11), Color("ff9c54"))
-	draw_rect(Rect2(7, 18, 8, 11), Color("ff9c54"))
+	var texture = SHIP_THRUST if int(animation_elapsed * 7.0) % 2 == 0 else SHIP_IDLE
+	draw_texture_rect(texture, Rect2(-30, -32, 60, 64), false)
